@@ -18,25 +18,30 @@ module.exports = function(RED) {
                 node.state = true;
                 if (node.config.passOnOff == 'always' || (node.config.passOnOff == 'ifChanged' && oldState != node.state))
                     send(msg);
-
-                this.status({fill:"green",shape:"dot",text:"ON"});
+                if (node.config.viewStatus == 'Yes')
+                    this.status({fill:"green",shape:"dot",text:"ON"});
+                    
             } else if ((node.config.onOffTopic == "" || node.config.onOffTopic == msg.topic) && msg.payload == node.offValue) {
                 var oldState = node.state;
                 node.state = false;
                 if (node.config.passOnOff == 'always' || (node.config.passOnOff == 'ifChanged' && oldState != node.state))
                     send(msg);
 
-                this.status({fill:"red",shape:"dot",text:"OFF"});
+                if (node.config.viewStatus == 'Yes')
+                    this.status({fill:"red",shape:"dot",text:"OFF"});
+                    
             } else if ((node.config.toggleTopic == "" || node.config.toggleTopic == msg.topic) && (node.toggleValue == '__ANY__' || msg.payload == node.toggleValue)) {
                 node.state = node.state == 'unknown' ? true : !node.state;
 
                 msg.payload = node.state ? node.onValue : node.offValue;
                 send(msg);
 
-                if (node.state)
-                    this.status({fill:"green",shape:"dot",text:"ON"});
-                else
-                    this.status({fill:"red",shape:"dot",text:"OFF"});
+                if (node.config.viewStatus == 'Yes') {
+                    if (node.state)
+                        this.status({fill:"green",shape:"dot",text:"ON"});
+                    else
+                        this.status({fill:"red",shape:"dot",text:"OFF"});
+                }
             }
         });
     }
